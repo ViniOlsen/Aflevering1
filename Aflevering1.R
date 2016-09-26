@@ -24,14 +24,19 @@ steep <- function(f, x, E) {
   k=0
   a=1
   d=c(E+1,E+1)
-  while(sqrt((a*d[1])^2+(a*d[2])^2) > E) {
+  len=sqrt((a*d[1])^2+(a*d[2])^2);
+  nf = 0;
+  while(len > E) {
     d= -c(g1(x),g2(x));
     r=0.5;
     c=10e-4;
     while(f(x+a*d)>f(x)+c*a* sum(t(d)*d)) {a=r*a};
-    cat("k = ", k, "; f =", f(x), "@ x =", x, "\n")
+    old_x=x;
     x=x+a*d;
-    k=k+1
+    x_diff= sqrt((old_x[1]-x[1])^2+(old_x[2]-x[2])^2);
+    cat("iter = ", k, "; f =", f(x), "@ x =", x, "gradient =", len, "a = ", a, "x_diff = ", x_diff, "\n")
+    k=k+1  
+    len=sqrt((a*d[1])^2+(a*d[2])^2);
   }
 }
 steep(f, x, E)
@@ -50,6 +55,7 @@ h3 <- function(x){x[1]/(200*x[1]^2-200*x[2]-1)}
 h4 <- function(x){(-600*x[1]^2+200*x[2]+1)/(200*(-200*x[1]^2+200*x[2]+1))}
 H <- matrix(c(h1(x), h2(x), h3(x), h4(x)), nrow = 2, ncol = 2, byrow=TRUE)
 
+c(1,2)%*%H
 #I have called my algorithm for newton.
 #k defind how many step my algorithm use to find a solution.
 #The are to loop in the algorithm, the frist i to find a new point to start with. 
@@ -59,14 +65,20 @@ newton <- function(f, x, E) {
   k=0
   a=1
   d=c(E+1,E+1)
-  while(sqrt((a*d[1])^2+(a*d[2])^2) > E) {
-    d= -H*c(g1(x),g2(x));
+  len=sqrt((a*d[1])^2+(a*d[2])^2);
+  nf = 0;
+  while(len > E) {
+    d= -H%*%c(g1(x),g2(x));
     r=0.5;
     c=10e-4;
-    while(f(x+a*d)>f(x)+c*a* sum(t(d)*d)) {a=r*a};
-    cat("k = ", k, "; f =", f(x), "@ x =", x, "\n")
+    while(f(x+a*d)>f(x)+c*a* sum(t(d)%*%d)) {a=r*a; nf=nf+1;};
+    old_x=x;
     x=x+a*d;
+    x_diff= sqrt((old_x[1]-x[1])^2+(old_x[2]-x[2])^2);
+    cat("iter = ", k, "; f =", f(x), "@ x =", x, "gradient =", len, "a = ", a, "x_diff = ", x_diff, "\n")
     k=k+1  
+    len=sqrt((a*d[1])^2+(a*d[2])^2);
   }
 }
 newton(f, x, E)
+
